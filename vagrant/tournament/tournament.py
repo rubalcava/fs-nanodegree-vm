@@ -18,7 +18,6 @@ def deleteMatches():
     c = DB.cursor()
     c.execute("DELETE FROM matches")
     c.execute("UPDATE players SET wins = 0")
-    c.execute("UPDATE players SET matches = 0")
 
     DB.commit()
     DB.close()
@@ -40,7 +39,7 @@ def countPlayers():
     c = DB.cursor()
     c.execute("SELECT count(id) AS num FROM players")
 
-    my_number = c.fetchall()[0][0]
+    my_number = c.fetchone()[0]
 
     DB.commit()
     DB.close()
@@ -60,7 +59,7 @@ def registerPlayer(name):
     """
     DB = psycopg2.connect("dbname=tournament")
     c = DB.cursor()
-    c.execute("INSERT INTO players(name, wins, matches) VALUES(%s, 0, 0)" , (name,))
+    c.execute("INSERT INTO players(name) VALUES(%s)" , (name,))
 
     DB.commit()
     DB.close()
@@ -82,7 +81,9 @@ def playerStandings():
     """
     DB = psycopg2.connect("dbname=tournament")
     c = DB.cursor()
-    c.execute("SELECT * from players ORDER BY wins DESC")
+
+    c.execute("SELECT * FROM player_standings")
+
     my_tuple = c.fetchall()
 
     DB.commit()
@@ -102,8 +103,6 @@ def reportMatch(winner, loser):
     c = DB.cursor()
     c.execute("INSERT INTO matches values(%s,%s)",  (winner, loser))
     c.execute("UPDATE players SET wins = (wins + 1) WHERE id = %s", (winner,))
-    c.execute("UPDATE players SET matches = (matches + 1) WHERE id = %s", (winner,))
-    c.execute("UPDATE players SET matches = (matches + 1) WHERE id = %s", (loser,))
 
     DB.commit()
     DB.close()
