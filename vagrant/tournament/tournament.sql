@@ -16,15 +16,27 @@ CREATE DATABASE tournament;
 -- Load the database
 \c tournament;
 
-CREATE TABLE players(id serial primary key, name text, wins integer DEFAULT 0);
+CREATE TABLE players(id serial primary key, name text);
 
 CREATE TABLE matches(winner integer primary key REFERENCES players,
                      loser integer REFERENCES players);
 
-CREATE VIEW won_matches AS SELECT id, wins from players ORDER BY id;
+CREATE VIEW won_matches AS SELECT players.id AS id,
+    count(matches.winner) AS wins FROM players
+    LEFT JOIN matches ON (players.id = matches.winner)
+    GROUP BY players.id ORDER BY players;
 
-CREATE VIEW lost_matches AS SELECT players.id as id, count(matches.loser) as losses from players LEFT JOIN matches ON (players.id = matches.loser) GROUP BY players.id ORDER BY players;
+CREATE VIEW lost_matches AS SELECT players.id AS id,
+    count(matches.loser) AS losses FROM players
+    LEFT JOIN matches ON (players.id = matches.loser)
+    GROUP BY players.id ORDER BY players;
 
-CREATE VIEW number_of_matches as SELECT won_matches.id, (won_matches.wins + lost_matches.losses) AS matches FROM won_matches JOIN lost_matches ON (won_matches.id = lost_matches.id) ORDER BY won_matches.id;
+CREATE VIEW number_of_matches AS SELECT won_matches.id,
+    (won_matches.wins + lost_matches.losses) AS matches, won_matches.wins AS wins
+    FROM won_matches JOIN lost_matches ON (won_matches.id = lost_matches.id)
+    ORDER BY won_matches.id;
 
-CREATE VIEW player_standings as SELECT players.id, players.name, players.wins, number_of_matches.matches as matches FROM players LEFT JOIN number_of_matches ON (players.id = number_of_matches.id) GROUP BY players.id, number_of_matches.matches ORDER BY players.wins;
+CREATE VIEW player_standings AS SELECT players.id, players.name, number_of_matches.wins, number_of_matches.matches
+    AS matches FROM players LEFT JOIN number_of_matches
+    ON (players.id = number_of_matches.id) GROUP BY players.id, number_of_matches.matches,
+    number_of_matches.wins ORDER BY number_of_matches.wins;

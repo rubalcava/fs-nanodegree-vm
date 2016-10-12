@@ -17,7 +17,6 @@ def deleteMatches():
     DB = psycopg2.connect("dbname=tournament")
     c = DB.cursor()
     c.execute("DELETE FROM matches")
-    c.execute("UPDATE players SET wins = 0")
 
     DB.commit()
     DB.close()
@@ -102,7 +101,6 @@ def reportMatch(winner, loser):
     DB = psycopg2.connect("dbname=tournament")
     c = DB.cursor()
     c.execute("INSERT INTO matches values(%s,%s)",  (winner, loser))
-    c.execute("UPDATE players SET wins = (wins + 1) WHERE id = %s", (winner,))
 
     DB.commit()
     DB.close()
@@ -125,7 +123,7 @@ def swissPairings():
     """
     DB = psycopg2.connect("dbname=tournament")
     c = DB.cursor()
-    c.execute("SELECT id, name FROM players ORDER BY wins DESC")
+    c.execute("SELECT id, name FROM player_standings ORDER BY wins DESC")
     sorted_winners = c.fetchall()
 
     DB.commit()
