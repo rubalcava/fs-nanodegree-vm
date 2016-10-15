@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg 4">
+            <p><a href='{{}}'>{{category.name}}</a></p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

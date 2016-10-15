@@ -1,0 +1,8 @@
+.centeredButton {
+    display: block;
+    margin: 0 auto;
+}
+
+#signInButton {
+    text-align: center;
+}
