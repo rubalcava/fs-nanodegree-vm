@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 
+{% set logged_in = logged_in %}
+
 {% block content %}
-<div class="centeredLink">
-    <p>
-        <a class="blackLink" href="{{url_for('showLogin')}}">Click here to login</a>
-    </p>
-    </br>
-</div>
+
 <h3 class="centeredLink">{{category.name}}</h3>
 </br>
 <div class="container">

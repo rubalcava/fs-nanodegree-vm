@@ -33,16 +33,20 @@ session = DBSession()
 @app.route('/')
 @app.route('/category')
 def mainPage():
+    logged_in = False
     categories = session.query(Category).order_by(asc(Category.name))
     if 'username' not in login_session:
-        return render_template('publiccategories.html', categories=categories)
+        return render_template('publiccategories.html', categories=categories, logged_in=logged_in)
     else:
-        return render_template('categories.html', categories=categories)
+        return render_template('categories.html', categories=categories, logged_in=True)
 
 @app.route('/category/new', methods=['GET', 'POST'])
 def newCategory():
+    logged_in = False
     if 'username' not in login_session:
         return redirect('/login')
+    else:
+        logged_in = True
     if request.method == 'POST':
         newCategory = Category(
             name=request.form['name'], user_id=login_session['user_id'])
@@ -51,26 +55,32 @@ def newCategory():
         session.commit()
         return redirect(url_for('mainPage'))
     else:
-        return render_template('newcategory.html')
+        return render_template('newcategory.html', logged_in=logged_in)
 
 # TODO figure out how to finish this. Include edit and delete
+@app.route('/category/<int:category_id>')
 @app.route('/category/<int:category_id>/places')
 def categoryPage(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     places = session.query(Place).filter_by(category_id=category_id).all()
-    if 'username' not in login_session:
-        return render_template('publiccategory.html', category=category, places=places)
+    creator = getUserInfo(category.user_id)
+    logged_in = False
+    if 'username' in login_session:
+        logged_in = True
+    if logged_in is False or creator.id != login_session['user_id']:
+        return render_template('publiccategory.html', category=category, places=places, logged_in=logged_in)
     else:
-        return render_template('category.html', category=category, places=places)
+        return render_template('category.html', category=category, places=places, logged_in=logged_in)
 
 
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
+    logged_in = False
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template('login.html', STATE=state)
+    return render_template('login.html', STATE=state, logged_in=logged_in)
 
 
 @app.route('/fbconnect', methods=['POST'])
