@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mainLoginLink">
+<div class="centeredLink">
     <p>
         <a class="blackLink" href="{{url_for('disconnect')}}">Click here to logout</a>
     </p>
+</div>
+<div class="centeredLink">
+    <p>
+        <a class="blackLink" href="{{url_for('newCategory')}}">Add a new category</a>
+    </p>
     </br>
+</div>
 </div>
 <div class="container">
     <div class="row">

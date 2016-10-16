@@ -39,6 +39,20 @@ def mainPage():
     else:
         return render_template('categories.html', categories=categories)
 
+@app.route('/category/new', methods=['GET', 'POST'])
+def newCategory():
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newCategory = Category(
+            name=request.form['name'], user_id=login_session['user_id'])
+        session.add(newCategory)
+        flash('New Category %s Successfully Created' % newCategory.name)
+        session.commit()
+        return redirect(url_for('mainPage'))
+    else:
+        return render_template('newcategory.html')
+
 # TODO figure out how to finish this. Include edit and delete
 @app.route('/category/<int:category_id>/places')
 def categoryPage(category_id):
