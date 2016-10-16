@@ -7,6 +7,15 @@
     text-align: center;
 }
 
+.mainLoginLink {
+    text-align: center;
+    text-decoration: none;
+}
+
+.blackLink {
+    color: black;
+}
+
 #signInButton {
     text-align: center;
 }
