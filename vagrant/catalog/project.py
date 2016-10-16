@@ -40,7 +40,7 @@ def mainPage():
         return render_template('categories.html', categories=categories)
 
 # TODO figure out how to finish this. Include edit and delete
-@app.route('/category/<int: category_id>/places')
+@app.route('/category/<int:category_id>/places')
 def categoryPage():
     category = session.query(Category).filter_by(id=category_id).one()
     places = session.query(Place).filter_by(category_id=category_id).all()

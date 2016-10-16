@@ -3,6 +3,10 @@
     margin: 0 auto;
 }
 
+.centeredColumn {
+    text-align: center;
+}
+
 #signInButton {
     text-align: center;
 }
