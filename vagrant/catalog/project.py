@@ -73,6 +73,20 @@ def categoryPage(category_id):
         return render_template('category.html', category=category, places=places, logged_in=logged_in)
 
 
+@app.route('/category/<int:category_id>/places/<int:place_id>')
+def placePage(category_id, place_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    place = session.query(Place).filter_by(id=place_id).one()
+    creator = getUserInfo(place.user_id)
+    logged_in = False
+    if 'username' in login_session:
+        logged_in = True
+    if logged_in is False or creator.id != login_session['user_id']:
+        return render_template('publicplace.html', category=category, place=place, logged_in=logged_in)
+    else:
+        return render_template('place.html', category=category, place=place, logged_in=logged_in)
+
+
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
