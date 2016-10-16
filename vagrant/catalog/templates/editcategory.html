@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% set logged_in = logged_in %}
+
+{% block content %}
+<form action="#" method="post">
+    <div class="form-group centeredColumn">
+        <label>Enter New Category Name: <input name="name" class="form-control" type="text" value="{{category.name}}"></label>
+        <button class="btn btn-default" id="submit" type="submit">Submit</button>
+    </div>
+</form>
+{% endblock %}

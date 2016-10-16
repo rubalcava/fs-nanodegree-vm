@@ -1,6 +1,6 @@
 # Reused g+ and fb login/logout code from restaurant menu app built in fsf course
 
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request, redirect, jsonify, url_for
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Place, User
@@ -51,11 +51,31 @@ def newCategory():
         newCategory = Category(
             name=request.form['name'], user_id=login_session['user_id'])
         session.add(newCategory)
-        flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
         return redirect(url_for('mainPage'))
     else:
         return render_template('newcategory.html', logged_in=logged_in)
+
+@app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
+def editCategory(category_id):
+    categoryToEdit = session.query(Category).filter_by(id=category_id).one()
+    logged_in = False
+    if 'username' in login_session:
+        logged_in = True
+    else:
+        return redirect('/login')
+    if request.method == 'POST':
+        # TODO implement the post
+        print('stuff')
+    if categoryToEdit.user_id != login_session['user_id']:
+        return render_template('unauth.html', logged_in=logged_in)
+    else:
+        return render_template("editcategory.html", logged_in=logged_in, category=categoryToEdit)
+
+
+@app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
+def deleteCategory(category_id):
+    print('cool')
 
 # TODO figure out how to finish this. Include edit and delete
 @app.route('/category/<int:category_id>')
@@ -86,6 +106,24 @@ def placePage(category_id, place_id):
     else:
         return render_template('place.html', category=category, place=place, logged_in=logged_in)
 
+@app.route('/category/JSON')
+def categoriesJSON():
+    categories = session.query(Category).all()
+    return jsonify(categories=[c.serialize for c in categories])
+
+# JSON APIs
+@app.route('/category/<int:category_id>/places/JSON')
+def categoryJSON(category_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    places = session.query(Place).filter_by(
+        category_id=category_id).all()
+    return jsonify(places=[p.serialize for p in places])
+
+
+@app.route('/category/<int:category_id>/places/<int:place_id>/JSON')
+def placeJSON(category_id, place_id):
+    place = session.query(Place).filter_by(id=place_id).one()
+    return jsonify(place=place.serialize)
 
 # Create anti-forgery state token
 @app.route('/login')
@@ -159,7 +197,6 @@ def fbconnect():
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
-    flash("Now logged in as %s" % login_session['username'])
     return output
 
 
@@ -250,7 +287,6 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
 
@@ -318,6 +354,8 @@ def disconnect():
         if login_session['provider'] == 'google':
             gdisconnect()
             del login_session['gplus_id']
+            del login_session['state']
+            del login_session['access_token']
         if login_session['provider'] == 'facebook':
             fbdisconnect()
             del login_session['facebook_id']
@@ -326,10 +364,10 @@ def disconnect():
         del login_session['picture']
         del login_session['user_id']
         del login_session['provider']
-        flash("You have successfully been logged out.")
+
         return redirect(url_for('mainPage'))
     else:
-        flash("You were not logged in")
+
         return redirect(url_for('mainPage'))
 
 

@@ -8,15 +8,12 @@
 </br>
 <div class="container">
     <div class="row">
-        {% for place in places %}
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 centeredColumn">
-
             <h4>{{place.name}}</h4>
             <p>{{place.city}}, {{place.country}}</p>
             <p>{{place.description}}</p>
             </br>
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endblock %}
