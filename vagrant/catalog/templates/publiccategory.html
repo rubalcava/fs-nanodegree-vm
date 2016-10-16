@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mainLoginLink">
+    <p>
+        <a class="blackLink" href="{{url_for('showLogin')}}">Click here to login</a>
+    </p>
+    </br>
+</div>
+<div class="container">
+    <div class="row">
+        {% for place in places %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 centeredColumn">
+            <p>
+                {{place.name}}
+                {{place.city}}
+                {{place.country}}
+                {{place.description}}
+            </p>
+            </br>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

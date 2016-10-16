@@ -41,7 +41,7 @@ def mainPage():
 
 # TODO figure out how to finish this. Include edit and delete
 @app.route('/category/<int:category_id>/places')
-def categoryPage():
+def categoryPage(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     places = session.query(Place).filter_by(category_id=category_id).all()
     if 'username' not in login_session:
@@ -280,7 +280,6 @@ def disconnect():
         if login_session['provider'] == 'google':
             gdisconnect()
             del login_session['gplus_id']
-            del login_session['credentials']
         if login_session['provider'] == 'facebook':
             fbdisconnect()
             del login_session['facebook_id']
@@ -290,10 +289,10 @@ def disconnect():
         del login_session['user_id']
         del login_session['provider']
         flash("You have successfully been logged out.")
-        return redirect(url_for('showRestaurants'))
+        return redirect(url_for('mainPage'))
     else:
         flash("You were not logged in")
-        return redirect(url_for('showRestaurants'))
+        return redirect(url_for('mainPage'))
 
 
 if __name__ == '__main__':
