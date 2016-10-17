@@ -62,17 +62,17 @@ def editCategory(category_id):
     categoryToEdit = session.query(Category).filter_by(id=category_id).one()
     logged_in = False
     logged_in_user_id = login_session['user_id']
-    creator = getUserInfo(categoryToEdit.user_id)
+    creator_id = categoryToEdit.user_id
 
     if 'username' in login_session:
         logged_in = True
     else:
         return redirect('/login')
-    if request.method == 'POST' and creator.id == logged_in_user_id:
+    if request.method == 'POST' and creator_id == logged_in_user_id:
         categoryToEdit.name = request.form['name']
         session.commit()
         return redirect(url_for('mainPage'))
-    if creator.id != logged_in_user_id:
+    if creator_id != logged_in_user_id:
         return render_template('unauth.html', logged_in=logged_in)
     else:
         return render_template("editcategory.html", logged_in=logged_in, category=categoryToEdit)
@@ -80,7 +80,30 @@ def editCategory(category_id):
 
 @app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
 def deleteCategory(category_id):
-    print('cool')
+    categoryToDelete = session.query(Category).filter_by(id=category_id).one()
+    places = session.query(Place).filter_by(category_id=category_id).all()
+    logged_in = False
+    logged_in_user_id = login_session['user_id']
+    creator_id = categoryToDelete.user_id
+
+    if 'username' in login_session:
+        logged_in = True
+    else:
+        return redirect('/login')
+    if request.method == 'POST' and creator_id == logged_in_user_id:
+        if request.form['deleteConfirm'] == "CONFIRM":
+            if places:
+                session.delete(places)
+            session.delete(categoryToDelete)
+            session.commit()
+            return redirect(url_for('mainPage'))
+        else:
+            return render_template("deletefailed.html", logged_in=logged_in)
+    if creator_id != logged_in_user_id:
+        return render_template('unauth.html', logged_in=logged_in)
+    else:
+        return render_template("deletecategory.html", logged_in=logged_in, category=categoryToDelete)
+
 
 # TODO figure out how to finish this. Include edit and delete
 @app.route('/category/<int:category_id>')
@@ -96,6 +119,70 @@ def categoryPage(category_id):
         return render_template('publiccategory.html', category=category, places=places, logged_in=logged_in)
     else:
         return render_template('category.html', category=category, places=places, logged_in=logged_in)
+
+
+@app.route('/category/<int:category_id>/places/new', methods=['GET', 'POST'])
+def newPlace(category_id):
+    logged_in = False
+    if 'username' not in login_session:
+        return redirect('/login')
+    else:
+        logged_in = True
+    if request.method == 'POST':
+        newPlace = Place(
+            name=request.form['name'], user_id=login_session['user_id'])
+        session.add(newCategory)
+        session.commit()
+        return redirect(url_for('mainPage'))
+    else:
+        return render_template('newcategory.html', logged_in=logged_in)
+
+@app.route('/category/<int:category_id>/places/<int:place_id>/edit', methods=['GET', 'POST'])
+def editPlace(category_id, place_id):
+    categoryToEdit = session.query(Category).filter_by(id=category_id).one()
+    logged_in = False
+    logged_in_user_id = login_session['user_id']
+    creator_id = categoryToEdit.user_id
+
+    if 'username' in login_session:
+        logged_in = True
+    else:
+        return redirect('/login')
+    if request.method == 'POST' and creator_id == logged_in_user_id:
+        categoryToEdit.name = request.form['name']
+        session.commit()
+        return redirect(url_for('mainPage'))
+    if creator_id != logged_in_user_id:
+        return render_template('unauth.html', logged_in=logged_in)
+    else:
+        return render_template("editcategory.html", logged_in=logged_in, category=categoryToEdit)
+
+
+@app.route('/category/<int:category_id>/places/<int:place_id>/delete', methods=['GET', 'POST'])
+def deletePlace(category_id, place_id):
+    categoryToDelete = session.query(Category).filter_by(id=category_id).one()
+    places = session.query(Place).filter_by(category_id=category_id).all()
+    logged_in = False
+    logged_in_user_id = login_session['user_id']
+    creator_id = categoryToDelete.user_id
+
+    if 'username' in login_session:
+        logged_in = True
+    else:
+        return redirect('/login')
+    if request.method == 'POST' and creator_id == logged_in_user_id:
+        if request.form['deleteConfirm'] == "CONFIRM":
+            if places:
+                session.delete(places)
+            session.delete(categoryToDelete)
+            session.commit()
+            return redirect(url_for('mainPage'))
+        else:
+            return render_template("deletefailed.html", logged_in=logged_in)
+    if creator_id != logged_in_user_id:
+        return render_template('unauth.html', logged_in=logged_in)
+    else:
+        return render_template("deletecategory.html", logged_in=logged_in, category=categoryToDelete)
 
 
 @app.route('/category/<int:category_id>/places/<int:place_id>')
