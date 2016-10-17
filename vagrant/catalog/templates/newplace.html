@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% set logged_in = logged_in %}
+
+{% block content %}
+<form action="#" method="post">
+    <div class="form-group centeredColumn">
+        <label>Enter Place Name: <input name="name" class="form-control" type="text" placeholder="Name"></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <label>Enter Place's City: <input name="city" class="form-control" type="text" placeholder="City"></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <label>Enter Place's Country: <input name="country" class="form-control" type="text" placeholder="Country"></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <label>Enter Place Description: <textarea name="description" class="form-control" type="text" rows="5" placeholder="Description"></textarea></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <button class="btn btn-default" id="submit" type="submit">Submit</button>
+    </div>
+</form>
+{% endblock %}
