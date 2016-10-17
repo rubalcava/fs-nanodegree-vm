@@ -90,7 +90,8 @@ def deleteCategory(category_id):
     if request.method == 'POST' and creator_id == login_session['user_id']:
         if request.form['deleteConfirm'] == "CONFIRM":
             if places:
-                session.delete(places)
+                for place in places:
+                    session.delete(place)
             session.delete(categoryToDelete)
             session.commit()
             return redirect(url_for('mainPage'))
