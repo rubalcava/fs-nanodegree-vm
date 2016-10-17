@@ -115,7 +115,7 @@ def categoryPage(category_id):
     if logged_in is False or creator.id != login_session['user_id']:
         return render_template('publiccategory.html', category=category, places=places, logged_in=logged_in)
     else:
-        return render_template('category.html', category=category, places=places, logged_in=logged_in)
+        return render_template('category.html', category=category, places=places, logged_in=logged_in, logged_in_user_id=login_session['user_id'])
 
 
 @app.route('/category/<int:category_id>/places/new', methods=['GET', 'POST'])
@@ -140,48 +140,49 @@ def newPlace(category_id):
 
 @app.route('/category/<int:category_id>/places/<int:place_id>/edit', methods=['GET', 'POST'])
 def editPlace(category_id, place_id):
-    categoryToEdit = session.query(Category).filter_by(id=category_id).one()
+    category = session.query(Category).filter_by(id=category_id).one()
+    placeToEdit = session.query(Place).filter_by(id=place_id).one()
     logged_in = False
-    creator_id = categoryToEdit.user_id
+    creator_id = placeToEdit.user_id
 
     if 'username' in login_session:
         logged_in = True
     else:
         return redirect('/login')
     if request.method == 'POST' and creator_id == login_session['user_id']:
-        categoryToEdit.name = request.form['name']
+        placeToEdit.name = request.form['name']
+        placeToEdit.city = request.form['city']
+        placeToEdit.country = request.form['country']
+        placeToEdit.description = request.form['description']
         session.commit()
-        return redirect(url_for('mainPage'))
-    if creator_id != login_session['user_id']:
+        return redirect(url_for('placePage', category_id=category.id, place_id=placeToEdit.id))
+    elif creator_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
-        return render_template("editcategory.html", logged_in=logged_in, category=categoryToEdit)
+        return render_template("editplace.html", logged_in=logged_in, place=placeToEdit)
 
 
 @app.route('/category/<int:category_id>/places/<int:place_id>/delete', methods=['GET', 'POST'])
 def deletePlace(category_id, place_id):
-    categoryToDelete = session.query(Category).filter_by(id=category_id).one()
-    places = session.query(Place).filter_by(category_id=category_id).all()
+    category = session.query(Category).filter_by(id=category_id).one()
+    placeToDelete = session.query(Place).filter_by(id=place_id).one()
     logged_in = False
-    creator_id = categoryToDelete.user_id
 
     if 'username' in login_session:
         logged_in = True
     else:
         return redirect('/login')
-    if request.method == 'POST' and creator_id == login_session['user_id']:
+    if request.method == 'POST' and placeToDelete.user_id == login_session['user_id']:
         if request.form['deleteConfirm'] == "CONFIRM":
-            if places:
-                session.delete(places)
-            session.delete(categoryToDelete)
+            session.delete(placeToDelete)
             session.commit()
-            return redirect(url_for('mainPage'))
+            return redirect(url_for('categoryPage', category_id=category.id))
         else:
             return render_template("deletefailed.html", logged_in=logged_in)
-    if creator_id != login_session['user_id']:
+    if placeToDelete.user_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
-        return render_template("deletecategory.html", logged_in=logged_in, category=categoryToDelete)
+        return render_template("deleteplace.html", logged_in=logged_in, place=placeToDelete)
 
 
 @app.route('/category/<int:category_id>/places/<int:place_id>')

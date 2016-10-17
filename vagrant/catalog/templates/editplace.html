@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% set logged_in = logged_in %}
+
+{% block content %}
+<form action="#" method="post">
+    <div class="form-group centeredColumn">
+        <label>Place Name: <input name="name" class="form-control" type="text" value="{{place.name}}"></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <label>Place's City: <input name="city" class="form-control" type="text" value="{{place.city}}"></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <label>Place's Country: <input name="country" class="form-control" type="text" value="{{place.country}}"></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <label>Place Description: <textarea name="description" class="form-control" type="text" rows="5">{{place.description}}</textarea></label>
+    </div>
+    <div class="form-group centeredColumn">
+        <button class="btn btn-default" id="submit" type="submit">Submit</button>
+    </div>
+</form>
+{% endblock %}

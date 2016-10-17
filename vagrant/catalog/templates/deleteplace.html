@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% set logged_in = logged_in %}
+
+{% block content %}
+<form action="#" method="post">
+    <div class="form-group centeredColumn">
+        <label>To confirm deletion of "{{place.name}}", type the word CONFIRM:<input name="deleteConfirm" class="form-control" type="text" placeholder='Type "CONFIRM" here'></label>
+        <button class="btn btn-default" id="submit" type="submit">Delete</button>
+    </div>
+</form>
+{% endblock %}

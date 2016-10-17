@@ -14,6 +14,13 @@
             <h4>{{place.name}}</h4>
             <p>{{place.city}}, {{place.country}}</p>
             <p>{{place.description}}</p>
+            {% if place.user_id == logged_in_user_id %}
+            <p>
+                <a href="{{url_for('editPlace', category_id=category.id, place_id=place.id)}}">Edit</a>
+                /
+                <a href="{{url_for('deletePlace', category_id=category.id, place_id=place.id)}}">Delete</a>
+            </p>
+            {% endif %}
             </br>
         </div>
         {% endfor %}
