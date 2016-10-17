@@ -31,10 +31,10 @@ session = DBSession()
 
 
 # Main page, shows all categories
-# TODO figure out how to finish this. Include edit and delete
 @app.route('/')
 @app.route('/category')
 def mainPage():
+    ''' Renders main page, no input necessary for GET '''
     logged_in = False
     categories = session.query(Category).order_by(asc(Category.name))
     if 'username' not in login_session:
@@ -48,6 +48,7 @@ def mainPage():
 
 @app.route('/category/new', methods=['GET', 'POST'])
 def newCategory():
+    ''' Renders new category page, no input necessary for GET '''
     logged_in = False
     if 'username' not in login_session:
         return redirect('/login')
@@ -65,6 +66,7 @@ def newCategory():
 
 @app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
 def editCategory(category_id):
+    ''' Renders edit category page, takes category id from url for GET '''
     categoryToEdit = session.query(Category).filter_by(id=category_id).one()
     logged_in = False
     creator_id = categoryToEdit.user_id
@@ -86,6 +88,7 @@ def editCategory(category_id):
 
 @app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
 def deleteCategory(category_id):
+    ''' Renders delete category page, takes category id from url for GET '''
     categoryToDelete = session.query(Category).filter_by(id=category_id).one()
     places = session.query(Place).filter_by(category_id=category_id).all()
     logged_in = False
@@ -112,10 +115,11 @@ def deleteCategory(category_id):
                                category=categoryToDelete)
 
 
-# TODO figure out how to finish this. Include edit and delete
 @app.route('/category/<int:category_id>')
 @app.route('/category/<int:category_id>/places')
 def categoryPage(category_id):
+    ''' Renders the category page which lists its contents (places),
+        takes category id from url for GET '''
     category = session.query(Category).filter_by(id=category_id).one()
     places = session.query(Place).filter_by(category_id=category_id).all()
     creator = getUserInfo(category.user_id)
@@ -133,6 +137,8 @@ def categoryPage(category_id):
 
 @app.route('/category/<int:category_id>/places/new', methods=['GET', 'POST'])
 def newPlace(category_id):
+    ''' Renders page to add new place to specific category,
+        take category id for GET '''
     category = session.query(Category).filter_by(id=category_id).one()
     cat_creator_id = category.user_id
     logged_in = False
@@ -158,6 +164,8 @@ def newPlace(category_id):
 @app.route('/category/<int:category_id>/places/<int:place_id>/edit',
            methods=['GET', 'POST'])
 def editPlace(category_id, place_id):
+    ''' Renders page to edit existing place,
+        takes category and place id for GET '''
     category = session.query(Category).filter_by(id=category_id).one()
     placeToEdit = session.query(Place).filter_by(id=place_id).one()
     logged_in = False
@@ -185,6 +193,8 @@ def editPlace(category_id, place_id):
 @app.route('/category/<int:category_id>/places/<int:place_id>/delete',
            methods=['GET', 'POST'])
 def deletePlace(category_id, place_id):
+    ''' Renders page to delete existing place,
+        takes category and place id for GET '''
     category = session.query(Category).filter_by(id=category_id).one()
     placeToDelete = session.query(Place).filter_by(id=place_id).one()
     logged_in = False
@@ -210,6 +220,8 @@ def deletePlace(category_id, place_id):
 
 @app.route('/category/<int:category_id>/places/<int:place_id>')
 def placePage(category_id, place_id):
+    ''' Renders individual page for place,
+        takes category and place id for GET '''
     category = session.query(Category).filter_by(id=category_id).one()
     place = session.query(Place).filter_by(id=place_id).one()
     creator = getUserInfo(place.user_id)
@@ -226,6 +238,7 @@ def placePage(category_id, place_id):
 
 @app.route('/category/JSON')
 def categoriesJSON():
+    ''' Returns JSON of all categories, no input necessary for GET '''
     categories = session.query(Category).all()
     return jsonify(categories=[c.serialize for c in categories])
 
@@ -233,6 +246,8 @@ def categoriesJSON():
 # JSON APIs
 @app.route('/category/<int:category_id>/places/JSON')
 def categoryJSON(category_id):
+    ''' Returns JSON of all places within a category,
+        takes category ID for GET '''
     category = session.query(Category).filter_by(id=category_id).one()
     places = session.query(Place).filter_by(
         category_id=category_id).all()
@@ -241,6 +256,8 @@ def categoryJSON(category_id):
 
 @app.route('/category/<int:category_id>/places/<int:place_id>/JSON')
 def placeJSON(category_id, place_id):
+    ''' Returns JSON of individual place details,
+        takes category and place id for GET '''
     place = session.query(Place).filter_by(id=place_id).one()
     return jsonify(place=place.serialize)
 
@@ -248,6 +265,7 @@ def placeJSON(category_id, place_id):
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
+    ''' Renders login page, no input necessary for GET '''
     logged_in = False
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
@@ -257,6 +275,7 @@ def showLogin():
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    ''' FB oauth implementation '''
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -325,6 +344,7 @@ def fbconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    ''' Google oauth implementation '''
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -414,9 +434,8 @@ def gconnect():
     print "done!"
     return output
 
+
 # User Helper Functions
-
-
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
@@ -442,6 +461,7 @@ def getUserID(email):
 # DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
 def gdisconnect():
+    ''' Log out of Google oauth '''
     # Only disconnect a connected user.
     credentials = login_session.get('credentials')
     if credentials is None:
@@ -464,6 +484,7 @@ def gdisconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
+    ''' Logout of FB oauth '''
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
@@ -477,6 +498,7 @@ def fbdisconnect():
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
+    ''' Initiates logout whether user used FB or Google oauth '''
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
