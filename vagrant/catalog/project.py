@@ -1,4 +1,5 @@
-# Reused g+ and fb login/logout code from restaurant menu app built in fsf course
+# Reused g+ and fb login/logout code from
+# restaurant menu app built in fsf course
 
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 from sqlalchemy import create_engine, asc
@@ -28,6 +29,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+
 # Main page, shows all categories
 # TODO figure out how to finish this. Include edit and delete
 @app.route('/')
@@ -36,9 +38,13 @@ def mainPage():
     logged_in = False
     categories = session.query(Category).order_by(asc(Category.name))
     if 'username' not in login_session:
-        return render_template('publiccategories.html', categories=categories, logged_in=logged_in)
+        return render_template('publiccategories.html', categories=categories,
+                               logged_in=logged_in)
     else:
-        return render_template('categories.html', categories=categories, logged_in=True, logged_in_user_id=login_session['user_id'])
+        return render_template('categories.html', categories=categories,
+                               logged_in=True,
+                               logged_in_user_id=login_session['user_id'])
+
 
 @app.route('/category/new', methods=['GET', 'POST'])
 def newCategory():
@@ -55,6 +61,7 @@ def newCategory():
         return redirect(url_for('mainPage'))
     else:
         return render_template('newcategory.html', logged_in=logged_in)
+
 
 @app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
 def editCategory(category_id):
@@ -73,7 +80,8 @@ def editCategory(category_id):
     if creator_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
-        return render_template("editcategory.html", logged_in=logged_in, category=categoryToEdit)
+        return render_template("editcategory.html", logged_in=logged_in,
+                               category=categoryToEdit)
 
 
 @app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
@@ -100,7 +108,8 @@ def deleteCategory(category_id):
     if creator_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
-        return render_template("deletecategory.html", logged_in=logged_in, category=categoryToDelete)
+        return render_template("deletecategory.html", logged_in=logged_in,
+                               category=categoryToDelete)
 
 
 # TODO figure out how to finish this. Include edit and delete
@@ -114,9 +123,12 @@ def categoryPage(category_id):
     if 'username' in login_session:
         logged_in = True
     if logged_in is False or creator.id != login_session['user_id']:
-        return render_template('publiccategory.html', category=category, places=places, logged_in=logged_in)
+        return render_template('publiccategory.html', category=category,
+                               places=places, logged_in=logged_in)
     else:
-        return render_template('category.html', category=category, places=places, logged_in=logged_in, logged_in_user_id=login_session['user_id'])
+        return render_template('category.html', category=category,
+                               places=places, logged_in=logged_in,
+                               logged_in_user_id=login_session['user_id'])
 
 
 @app.route('/category/<int:category_id>/places/new', methods=['GET', 'POST'])
@@ -128,18 +140,23 @@ def newPlace(category_id):
         return redirect('/login')
     else:
         logged_in = True
-    if request.method == 'POST' and cat_creator_id == login_session['user_id']:
-        newPlace = Place(
-            name=request.form['name'], user_id=login_session['user_id'], description=request.form['description'], city=request.form['city'], country=request.form['country'], category=category)
-        session.add(newPlace)
-        session.commit()
-        return redirect(url_for('categoryPage', category_id=category.id))
+    if (request.method == 'POST' and
+       cat_creator_id == login_session['user_id']):
+            newPlace = Place(
+                name=request.form['name'], user_id=login_session['user_id'],
+                description=request.form['description'], category=category,
+                city=request.form['city'], country=request.form['country'])
+            session.add(newPlace)
+            session.commit()
+            return redirect(url_for('categoryPage', category_id=category.id))
     elif cat_creator_id != login_session['user_id']:
         return render_template("unauth.html", logged_in=logged_in)
     else:
         return render_template('newplace.html', logged_in=logged_in)
 
-@app.route('/category/<int:category_id>/places/<int:place_id>/edit', methods=['GET', 'POST'])
+
+@app.route('/category/<int:category_id>/places/<int:place_id>/edit',
+           methods=['GET', 'POST'])
 def editPlace(category_id, place_id):
     category = session.query(Category).filter_by(id=category_id).one()
     placeToEdit = session.query(Place).filter_by(id=place_id).one()
@@ -156,14 +173,17 @@ def editPlace(category_id, place_id):
         placeToEdit.country = request.form['country']
         placeToEdit.description = request.form['description']
         session.commit()
-        return redirect(url_for('placePage', category_id=category.id, place_id=placeToEdit.id))
+        return redirect(url_for('placePage', category_id=category.id,
+                                place_id=placeToEdit.id))
     elif creator_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
-        return render_template("editplace.html", logged_in=logged_in, place=placeToEdit)
+        return render_template("editplace.html", logged_in=logged_in,
+                               place=placeToEdit)
 
 
-@app.route('/category/<int:category_id>/places/<int:place_id>/delete', methods=['GET', 'POST'])
+@app.route('/category/<int:category_id>/places/<int:place_id>/delete',
+           methods=['GET', 'POST'])
 def deletePlace(category_id, place_id):
     category = session.query(Category).filter_by(id=category_id).one()
     placeToDelete = session.query(Place).filter_by(id=place_id).one()
@@ -173,7 +193,8 @@ def deletePlace(category_id, place_id):
         logged_in = True
     else:
         return redirect('/login')
-    if request.method == 'POST' and placeToDelete.user_id == login_session['user_id']:
+    if (request.method == 'POST' and
+       placeToDelete.user_id == login_session['user_id']):
         if request.form['deleteConfirm'] == "CONFIRM":
             session.delete(placeToDelete)
             session.commit()
@@ -183,7 +204,8 @@ def deletePlace(category_id, place_id):
     if placeToDelete.user_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
-        return render_template("deleteplace.html", logged_in=logged_in, place=placeToDelete)
+        return render_template("deleteplace.html", logged_in=logged_in,
+                               place=placeToDelete)
 
 
 @app.route('/category/<int:category_id>/places/<int:place_id>')
@@ -195,14 +217,18 @@ def placePage(category_id, place_id):
     if 'username' in login_session:
         logged_in = True
     if logged_in is False or creator.id != login_session['user_id']:
-        return render_template('publicplace.html', category=category, place=place, logged_in=logged_in)
+        return render_template('publicplace.html', category=category,
+                               place=place, logged_in=logged_in)
     else:
-        return render_template('place.html', category=category, place=place, logged_in=logged_in)
+        return render_template('place.html', category=category, place=place,
+                               logged_in=logged_in)
+
 
 @app.route('/category/JSON')
 def categoriesJSON():
     categories = session.query(Category).all()
     return jsonify(categories=[c.serialize for c in categories])
+
 
 # JSON APIs
 @app.route('/category/<int:category_id>/places/JSON')
@@ -217,6 +243,7 @@ def categoryJSON(category_id):
 def placeJSON(category_id, place_id):
     place = session.query(Place).filter_by(id=place_id).one()
     return jsonify(place=place.serialize)
+
 
 # Create anti-forgery state token
 @app.route('/login')
@@ -241,8 +268,9 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    url = '''https://graph.facebook.com/oauth/access_token?
+             grant_type=fb_exchange_token&client_id=%s&client_secret=
+             %s&fb_exchange_token=%s''' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -250,7 +278,6 @@ def fbconnect():
     userinfo_url = "https://graph.facebook.com/v2.4/me"
     # strip expire tag from access token
     token = result.split("&")[0]
-
 
     url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
@@ -263,12 +290,14 @@ def fbconnect():
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
 
-    # The token must be stored in the login_session in order to properly logout, let's strip out the information before the equals sign in our token
+    # The token must be stored in the login_session in order to properly logout
+    # let's strip out the information before the equals sign in our token
     stored_token = token.split("=")[1]
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
+    url = '''https://graph.facebook.com/v2.4/me/picture?%s
+             &redirect=0&height=200&width=200''' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -288,7 +317,8 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ''' " style = "width: 300px; height: 300px;border-radius: 150px;
+                -webkit-border-radius: 150px;-moz-border-radius: 150px;"> '''
 
     return output
 
@@ -345,8 +375,8 @@ def gconnect():
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps('''
+                                 Current user is already connected.'''), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -379,7 +409,8 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ''' " style = "width: 300px; height: 300px;border-radius: 150px;
+                -webkit-border-radius: 150px;-moz-border-radius: 150px;"> '''
     print "done!"
     return output
 
@@ -407,8 +438,8 @@ def getUserID(email):
     except:
         return None
 
-# DISCONNECT - Revoke a current user's token and reset their login_session
 
+# DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
@@ -419,7 +450,8 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = credentials.access_token
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    url = '''https://accounts.google.com
+             /o/oauth2/revoke?token=%s''' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     if result['status'] != '200':
@@ -435,10 +467,12 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = '''https://graph.facebook.com
+             /%s/permissions?access_token=%s''' % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
+
 
 # Disconnect based on provider
 @app.route('/disconnect')
@@ -466,5 +500,5 @@ def disconnect():
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
-    app.debug = True
+    app.debug = False
     app.run(host='0.0.0.0', port=5000)
