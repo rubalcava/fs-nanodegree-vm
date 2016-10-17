@@ -65,8 +65,9 @@ def editCategory(category_id):
     else:
         return redirect('/login')
     if request.method == 'POST':
-        # TODO implement the post
-        print('stuff')
+        categoryToEdit.name = request.form['name']
+        session.commit()
+        return redirect(url_for('mainPage'))
     if categoryToEdit.user_id != login_session['user_id']:
         return render_template('unauth.html', logged_in=logged_in)
     else:
