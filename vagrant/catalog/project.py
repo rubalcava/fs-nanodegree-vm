@@ -35,10 +35,11 @@ session = DBSession()
 def mainPage():
     logged_in = False
     categories = session.query(Category).order_by(asc(Category.name))
+    logged_in_user_id = login_session['user_id']
     if 'username' not in login_session:
         return render_template('publiccategories.html', categories=categories, logged_in=logged_in)
     else:
-        return render_template('categories.html', categories=categories, logged_in=True)
+        return render_template('categories.html', categories=categories, logged_in=True, logged_in_user_id=logged_in_user_id)
 
 @app.route('/category/new', methods=['GET', 'POST'])
 def newCategory():
@@ -60,15 +61,18 @@ def newCategory():
 def editCategory(category_id):
     categoryToEdit = session.query(Category).filter_by(id=category_id).one()
     logged_in = False
+    logged_in_user_id = login_session['user_id']
+    creator = getUserInfo(categoryToEdit.user_id)
+
     if 'username' in login_session:
         logged_in = True
     else:
         return redirect('/login')
-    if request.method == 'POST':
+    if request.method == 'POST' and creator.id == logged_in_user_id:
         categoryToEdit.name = request.form['name']
         session.commit()
         return redirect(url_for('mainPage'))
-    if categoryToEdit.user_id != login_session['user_id']:
+    if creator.id != logged_in_user_id:
         return render_template('unauth.html', logged_in=logged_in)
     else:
         return render_template("editcategory.html", logged_in=logged_in, category=categoryToEdit)
