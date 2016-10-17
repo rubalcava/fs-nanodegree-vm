@@ -1,15 +1,15 @@
-rdb-fullstack
+fullstack nanodegree
 =============
 
 Common code for the Relational Databases and Full Stack Fundamentals courses
 
-### Prerequisites for the swiss tournament
+### Prerequisites for all projects
 
 - Virtualbox, which is available here: https://www.virtualbox.org/wiki/Downloads
 - Vagrant, which is available here: https://www.vagrantup.com/
 
 
-### How to run the swiss tournament
+### Prerequisite steps to run all projects
 
 - Clone or download this project. If you've downloaded it, unzip the project to a location of your choice. If you clone the project, clone it to the location of your choice.
 
@@ -25,7 +25,33 @@ Common code for the Relational Databases and Full Stack Fundamentals courses
 
 - Once you see the following prompt, you are ready to continue: vagrant@vagrant-ubuntu-trusty-32:~$
 
-- It's now time to get to the project itself. In your terminal type the following and then press the enter key: cd /vagrant/tournament
+
+### Next steps to run the place catalog
+
+- In your terminal type the following and then press the enter key: cd /vagrant/catalog
+
+- Your terminal prompt should look like this: vagrant@vagrant-ubuntu-trusty-32:/vagrant/catalog$
+
+- Now it's time to initialize the database. In your terminal, type the following and press the enter key: python database_setup.py
+
+- Now it's time to populate the database with some initial data. In your terminal, type the following and press the enter key: python addsuperradplaces.py
+
+- The place catalog can now be run. In your terminal, type the following and press the enter key: python project.py
+
+- Your terminal should show the following:  
+    * Running on http://0.0.0.0:5000/
+    * Restarting with reloader
+
+- Fire up your browser and navigate to http://localhost:5000
+
+- Use the site!
+
+- When you're done, close your browser and head back to the terminal. Press ctrl+c to end the webserver. You should now be back at the VM'm prompt.
+
+
+### Next steps to run the swiss tournament
+
+- In your terminal type the following and then press the enter key: cd /vagrant/tournament
 
 - Your terminal prompt should look like this: vagrant@vagrant-ubuntu-trusty-32:/vagrant/tournament$
 
@@ -41,8 +67,13 @@ Common code for the Relational Databases and Full Stack Fundamentals courses
 
 - To run the swiss tournament tests, enter the following command and press the enter key: python tournament_test.py
 
-- The output will display the results of the test, and will put you back at the VM's prompt. To get out of the VM, type the following command and press the enter key: exit
+- The output will display the results of the test, and will put you back at the VM's prompt.
+
+
+### Final steps to shutdown the VM once you're done
+
+- To get out of the VM, type the following command and press the enter key: exit
 
 - To show down the VM, type the following command and press the enter key: vagrant halt
 
-- Thanks for tying this out!
+- Thanks for trying my projects!
